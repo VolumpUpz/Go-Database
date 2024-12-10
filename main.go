@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"log"
 
 	_ "github.com/lib/pq"
 )
@@ -24,38 +25,33 @@ type Product struct {
 }
 
 func main() {
-	// psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-	// 	"password=%s dbname=%s sslmode=disable",
-	// 	host, port, username, password, databaseName)
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		host, port, username, password, databaseName)
 
-	// sdb, err := sql.Open("postgres", psqlInfo)
+	sdb, err := sql.Open("postgres", psqlInfo)
 
-	// if err != nil {
-	// 	log.Fatal("err 1 :", err)
-	// }
-	// db = sdb
+	if err != nil {
+		log.Fatal("err 1 :", err)
+	}
+	db = sdb
 
-	// err = db.Ping()
+	err = db.Ping()
 
-	// if err != nil {
-	// 	log.Fatal("err 2 :", err)
-	// }
+	if err != nil {
+		log.Fatal("err 2 :", err)
+	}
 
-	// fmt.Println("Connection Database Successful")
+	fmt.Println("Connection Database Successful")
 
-	// err = createProduct(&Product{
-	// 	Name:  "Go Product",
-	// 	Price: 222,
-	// })
-
-	createTest(Product{
+	err = createProduct(&Product{
 		Name:  "Go Product",
 		Price: 222,
 	})
 
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	fmt.Println("Create product successful")
 
@@ -65,9 +61,4 @@ func createProduct(product *Product) error {
 
 	_, err := db.Exec("INSERT INTO PRODUCTS (name,price) VALUES($1,$2);", product.Name, product.Price)
 	return err
-}
-
-func createTest(product Product) {
-	fmt.Println(product.Name)
-
 }

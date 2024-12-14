@@ -24,6 +24,13 @@ type Product struct {
 	Price int
 }
 
+type ProductWithSupplier struct {
+	ID           int
+	Name         string
+	Price        int
+	SupplierName string
+}
+
 func main() {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
@@ -79,6 +86,12 @@ func main() {
 	}
 	fmt.Println(products)
 
+	ps, err := getProductWithSupplier()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(ps)
+
 }
 
 func createProduct(product *Product) error {
@@ -127,6 +140,7 @@ func getProducts() ([]Product, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 
 	var products []Product //slice
@@ -142,4 +156,37 @@ func getProducts() ([]Product, error) {
 		return nil, err
 	}
 	return products, nil
+}
+
+func getProductWithSupplier() ([]ProductWithSupplier, error) {
+
+	rows, err := db.Query(`SELECT p.id, p.name, p.Price, s.Name as SupplierName
+						   FROM PRODUCTS p 
+						   INNER JOIN SUPPLIER s 
+						   ON p.supplier_id = s.id
+						   WHERE 1 = 1
+						 `)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var productWithSuppliers []ProductWithSupplier
+
+	for rows.Next() {
+		var ps ProductWithSupplier
+		err := rows.Scan(&ps.ID, &ps.Name, &ps.Price, &ps.SupplierName)
+		if err != nil {
+			return nil, err
+		}
+		productWithSuppliers = append(productWithSuppliers, ps)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return productWithSuppliers, nil
+
 }

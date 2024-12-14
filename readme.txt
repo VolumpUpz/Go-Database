@@ -9,3 +9,5 @@ restore docker volume
 2.docker run --rm -v pgadmin_data:/volume -v D:/Benz/Mikelopster/Go-Database:/backup busybox sh -c "tar xzf /backup/docker_vol_pgadmin_data.tar.gz -C /volume"
 
 คำสั่ง query หรือ queryRow จะดึงข้อมูลจาก database ออกมาแล้ว จะเป็นการเก็บ pointer ของ row  แต่ยังไม่ทำการโหลดเข้าสู่ memory ต้องใช้ คำสั่ง scan ถึงจะโหลดเข้า memory ทีละตัวๆ
+
+defer คือ คำสั่งสุดท้ายของ function ว่าจะให้ทำอะไร เช่น defer fmt.Println("Last command") หรือ defer rows.Close()

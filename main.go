@@ -61,6 +61,18 @@ func main() {
 	}
 	fmt.Println(product)
 
+	//err = updateProduct(3, &Product{Name: "Go Products", Price: 224})
+	product, err = updateProductWithRetuning(3, &Product{Name: "Go Productss", Price: 225})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(product)
+
+	err = deleteProduct(3)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 }
 
 func createProduct(product *Product) error {
@@ -79,4 +91,26 @@ func getProduct(id int) (Product, error) {
 	}
 	return p, nil
 
+}
+
+func updateProduct(id int, product *Product) error {
+	_, err := db.Exec("UPDATE PRODUCTS SET name=$1,price=$2 WHERE id = $3;", product.Name, product.Price, id)
+	return err
+}
+
+func updateProductWithRetuning(id int, product *Product) (Product, error) {
+	var p Product
+
+	row := db.QueryRow("UPDATE PRODUCTS SET name=$1,price=$2 WHERE id = $3 RETURNING id, name, price;", product.Name, product.Price, id)
+	err := row.Scan(&p.ID, &p.Name, &p.Price)
+	if err != nil {
+		return Product{}, err
+	}
+	return p, nil
+
+}
+
+func deleteProduct(id int) error {
+	_, err := db.Exec("DELETE FROM PRODUCTS WHERE id= $1;", id)
+	return err
 }

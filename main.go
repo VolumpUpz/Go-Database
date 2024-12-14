@@ -62,16 +62,22 @@ func main() {
 	fmt.Println(product)
 
 	//err = updateProduct(3, &Product{Name: "Go Products", Price: 224})
-	product, err = updateProductWithRetuning(3, &Product{Name: "Go Productss", Price: 225})
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(product)
+	// product, err = updateProductWithRetuning(3, &Product{Name: "Go Productss", Price: 225})
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// fmt.Println(product)
 
-	err = deleteProduct(3)
+	// err = deleteProduct(3)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	products, err := getProducts()
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Println(products)
 
 }
 
@@ -113,4 +119,27 @@ func updateProductWithRetuning(id int, product *Product) (Product, error) {
 func deleteProduct(id int) error {
 	_, err := db.Exec("DELETE FROM PRODUCTS WHERE id= $1;", id)
 	return err
+}
+
+func getProducts() ([]Product, error) {
+
+	rows, err := db.Query("SELECT id,name,price from PRODUCTS")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var products []Product //slice
+	for rows.Next() {      //เป็นการ shift iteration ของ rows ไปเรื่อยๆ จนจบ
+		var p Product
+		err := rows.Scan(&p.ID, &p.Name, &p.Price)
+		if err != nil {
+			return nil, err
+		}
+		products = append(products, p)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return products, nil
 }
